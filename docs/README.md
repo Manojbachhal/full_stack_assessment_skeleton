@@ -151,7 +151,7 @@ docker-compose -f docker-compose.initial.yml up --build -d
 
 This normalized design reduces data redundancy, enhances data integrity, and ensures relationships are properly maintained through foreign keys.
 
-> To update the SQL script in Docker and apply changes to the mysql follow these steps:
+<!-- > To update the SQL script in Docker and apply changes to the mysql follow these steps:
 
 - Step - 1 Copy script file in docker
 
@@ -169,7 +169,7 @@ docker exec -it mysql_ctn mysql -u db_user -p home_db < /99_final_db_dump.sql
 
 ```bash
 docker exec -it mysql_ctn sh -c 'mysql -u db_user -pyour_password home_db < /99_final_db_dump.sql'
-```
+``` -->
 
 ## 2. React SPA
 
