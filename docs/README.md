@@ -9,9 +9,11 @@
 - for each section you'll find that it has **problem**, **task**, **solution** sections:
 
 - **problem** :
+
   - explains the core problem we're trying to solve, and maybe some context
 
 - **task** :
+
   - gives a list of tasks that MUST be accomplished by you
   - also tells you what are the must-have features in your solution
   - tasks marked with [<ins>**extra**</ins>] are not necessary, consider them as bonus problems
@@ -22,9 +24,10 @@
 > [!IMPORTANT]
 > please stick to the techstack mentioned; it's a very basic project and does not require an arsenal of libraries, so do not use any other libraries, frameworks, etc.. unless explicitly mentioned
 
-  - however you can use simple libraries that are not mentioned, granted they don't significantly alter the task or do the work for you and that you document the decision-making properly as explained below
+- however you can use simple libraries that are not mentioned, granted they don't significantly alter the task or do the work for you and that you document the decision-making properly as explained below
 
 - **solution** :
+
   - once you're done solving the exercise or a part of it, you **MUST** document your solution in this section under the appropriate part of the exercise you solved, so the for the database problem you should edit the solution section under [database](#1-database) only
 
   - the idea is to document mainly 2 things:
@@ -58,8 +61,7 @@ docker-compose -f docker-compose.initial.yml up --build -d
 > [!WARNING]
 > do not change credentials, db name and any configuration, this just adds unnecessary complexity
 
-> [!TIP]
-> [mysql docker image docs](https://hub.docker.com/_/mysql)
+> [!TIP] > [mysql docker image docs](https://hub.docker.com/_/mysql)
 
 ![mysql creds](images/mysql_creds.png)
 
@@ -72,7 +74,7 @@ docker-compose -f docker-compose.initial.yml up --build -d
 <summary>preview of data in `home_db.user_home` table</summary>
 
 | **username** | **email**          | **street_address**       | **state**     | **zip** | **sqft** | **beds** | **baths** | **list_price** |
-|--------------|--------------------|--------------------------|---------------|---------|----------|----------|-----------|----------------|
+| ------------ | ------------------ | ------------------------ | ------------- | ------- | -------- | -------- | --------- | -------------- |
 | user7        | user7@example.org  | 72242 Jacobson Square    | Arizona       | 05378   | 2945.89  | 1        | 3         | 791204.0       |
 | user7        | user7@example.org  | 75246 Cumberland Street  | Arizona       | 08229   | 2278.71  | 2        | 1         | 182092.0       |
 | user10       | user10@example.org | 72242 Jacobson Square    | Arizona       | 05378   | 2945.89  | 1        | 3         | 791204.0       |
@@ -89,12 +91,14 @@ docker-compose -f docker-compose.initial.yml up --build -d
 ### problem
 
 - as you can see we have data relating users and homes
+
   - each user is identified by its username, i.e., if two rows have the same username, they're talking about the same user
   - similarly each home is identified by its street_address
 
 - this data relates users on our website and which homes they are interested in
 
 - upon basic inspection you can observe the following:
+
   - one user may be related to multiple homes
   - also the same home may be related to multiple users
 
@@ -105,7 +109,8 @@ docker-compose -f docker-compose.initial.yml up --build -d
 ### task
 
 - refactor the data into a _reasonably_ normalized set of tables
-- ensure that the relationship between tables is represented properly using foreign keys -> primary keys  references (as they are usually in relational DBs)
+- ensure that the relationship between tables is represented properly using foreign keys -> primary keys references (as they are usually in relational DBs)
+
   - you'll need to create _atleast_ 2 tables:
 
     - `user` : to store `user` attributes: `username`, `email`
@@ -118,6 +123,7 @@ docker-compose -f docker-compose.initial.yml up --build -d
 - put it inside the `sql` directory under the root directory
 
 - make sure that:
+
   - the SQL script you have created, takes the DB from its initial state (as it was when you started the docker container for the first time) to the "solved" state, when it's executed
 
 - **techstack instructions**
@@ -129,7 +135,41 @@ docker-compose -f docker-compose.initial.yml up --build -d
 
 ### solution
 
-> explain briefly your solution for this problem here
+> To normalize the database and efficiently manage relationships, I implemented the following steps:
+
+- Renamed user_home to user_home_old:
+  This preserves the original data before restructuring.
+
+- `Created user Table`:
+  This table stores user-specific details like username (primary key) and email, isolating user attributes for better clarity.
+
+- `Created home Table`:
+  This table holds home-specific attributes such as street_address (primary key), state, zip, sqft, beds, baths, and list_price. Storing home data separately ensures each home is uniquely identified and its attributes are clearly defined.
+
+- `Created user_home Table`:
+  This table establishes a many-to-many relationship between users and homes by referencing username from the user table and street_address from the home table. It uses foreign keys to maintain referential integrity between the user and home tables.
+
+This normalized design reduces data redundancy, enhances data integrity, and ensures relationships are properly maintained through foreign keys.
+
+> To update the SQL script in Docker and apply changes to the mysql follow these steps:
+
+- Step - 1 Copy script file in docker
+
+```bash
+docker cp 99_final_db_dump.sql mysql_ctn:/99_final_db_dump.sql
+```
+
+- Step - 2 Execute the SQL script inside the MySQL container
+
+```bash
+docker exec -it mysql_ctn mysql -u db_user -p home_db < /99_final_db_dump.sql
+```
+
+- Step - 2 - `Alternate` replace yourpassword with actual password
+
+```bash
+docker exec -it mysql_ctn sh -c 'mysql -u db_user -pyour_password home_db < /99_final_db_dump.sql'
+```
 
 ## 2. React SPA
 
@@ -145,6 +185,7 @@ docker-compose -f docker-compose.initial.yml up --build -d
 ### task
 
 - **homes for user page**
+
   - create a page to show all homes related to a particular user
   - there should be a single-select dropdown at top, to pick the user for whom we want to view the related homes
   - and below that the related homes should populate in cards
@@ -154,7 +195,7 @@ docker-compose -f docker-compose.initial.yml up --build -d
   - make sure that:
     - page is responsive as shown
     - we don't expect any fancy UI, barebones is just fine, but it should be functional
-  
+
 - **edit user functionality**
 
   - each home card has an `Edit User` button attached, this should show a modal on click, this is the `Edit User Modal`:
@@ -167,7 +208,7 @@ docker-compose -f docker-compose.initial.yml up --build -d
     - the users related to that home must be updated in the DB
     - the modal should close and the changes should reflect on the `homes for user page`
     - so for eg: if we had picked `user1` on `homes for user page` then clicked on `Edit User` for any home there and **unchecked** `user1` in the modal and saved, then upon closing of the modal, the home we clicked on previously, should NO longer be visible for `user1`, but should be visible for any other user for whom the checkbox was checked on `Save`
-  
+
   ![edit user modal](images/edit_user_modal.png)
 
   - make sure:
@@ -183,13 +224,15 @@ docker-compose -f docker-compose.initial.yml up --build -d
   - to create the above components / pages, you'll fetch data from [backend APIs](#3-backend-api-development-on-node)
 
   - make sure you're handling data-fetching properly by _preferrably_ using a data-fetching-library:
+
     - show a loading spinner/skeleton while an API request is progress
     - gracefully handle errors if the API calls error out
-    - [<ins>**extra**</ins>] cache API responses, to improve performance 
+    - [<ins>**extra**</ins>] cache API responses, to improve performance
 
   - as discussed below it's preferred to use a data fetching library to handle these problems properly
 
 - **techstack instructions**
+
   - JS frameworks:
 
     - [Vite (recommended)](https://vitejs.dev/guide/) or [Create React App](https://github.com/facebook/create-react-app)
@@ -201,10 +244,13 @@ docker-compose -f docker-compose.initial.yml up --build -d
     - use no other css frameworks, component libs, etc..
 
   - State Management
+
     - use [Redux Toolkit](https://redux-toolkit.js.org/) where appropriate for state-management
 
   - Data Fetching
+
     - **preferred approach** is to use one of the following data-fetching libraries:
+
       - [RTK Query](https://redux-toolkit.js.org/tutorials/rtk-query)
       - [TanStack Query](https://tanstack.com/query/latest)
 
@@ -220,7 +266,50 @@ docker-compose -f docker-compose.initial.yml up --build -d
 
 ### solution
 
-> explain briefly your solution for this problem here
+> Here is an overview of my solution built using React-Vite, and TypeScript.
+
+- `Dropdown`: A single-select dropdown is implemented at the top of the page to choose a user.
+
+- `Home Cards`: Displays a list of homes associated with the selected user below the dropdown, with each home shown as an individual card.
+
+- `Edit User Functionality:`
+
+  - `Modal`: Each home card includes an "Edit User" button that opens a modal.
+  - `Check-boxes`: The modal presents all users with checkboxes, pre-selecting users currently associated with the home.
+  - `Edit Users`: You can toggle checkboxes to update user-home associations. When `"Save"` is clicked, the database is updated, and changes are reflected on the Homes for User page. Clicking `"Cancel"` closes the modal without saving changes.
+  - `Validation`: The `"Save"` button remains disabled until at least one user is selected, with a `warning message` appearing if no users are selected.
+
+- Data Fetching:
+
+  - `RTK Query`: RTK Query is used for fetching user and home data from the API.
+  - `Loading and Errors`: A loading spinner appears while data is being fetched, and errors are handled gracefully with appropriate messages.
+
+- State Management:
+
+  - `Redux Toolkit`: User and home data are managed through Redux Toolkit for handling global state.
+    Styling:
+
+- `CSS`: `Tailwind` CSS is used for a responsive and clean design.
+
+> To run front-end follow these steps
+
+Navigate to the front directory with
+
+```bash
+cd frontend
+```
+
+Install dependencies using
+
+```bash
+npm install
+```
+
+Start the frontend with
+
+```bash
+npm run dev
+```
 
 ## 3. Backend API development on Node
 
@@ -233,17 +322,21 @@ docker-compose -f docker-compose.initial.yml up --build -d
 - create **REST APIs**, we'll need the following APIs:
 
   - **/user/find-all**
+
     - should return all users from DB
 
   - **/home/find-by-user**
+
     - should return all homes related to a user
     - this is consumed in UI to show home cards
 
   - **/user/find-by-home**
+
     - should return all users related to a home
     - this is consumed in UI, in the `Edit Users` modal
 
   - **/home/update-users**
+
     - this API should take in the new bunch of users (from the modal after `Save`) and the home for which the `Edit Users` button was clicked
     - this API should mutate the DB, to reflect the new set of users related to the home
 
@@ -253,7 +346,7 @@ docker-compose -f docker-compose.initial.yml up --build -d
     - should only use JSON as the interface
     - if possible, sanitize the data sent in the request
     - the `/home/update-users` API is idempotent
-  
+
 - **[<ins>extra</ins>] add pagination**
 
   - for `/home/find-by-user` API add pagination support:
@@ -271,6 +364,7 @@ docker-compose -f docker-compose.initial.yml up --build -d
   - Interacting with DB:
 
     - use one of these ORMs, this the **preferred approach**:
+
       - [TypeORM (recommended)](https://typeorm.io/)
       - [Prisma](https://www.prisma.io/docs/getting-started)
       - [Sequelize](https://sequelize.org/docs/v6/getting-started/)
@@ -281,7 +375,45 @@ docker-compose -f docker-compose.initial.yml up --build -d
 
 ### solution
 
-> explain briefly your solution for this problem here
+> Here is overview of my solution with Nest.js
+
+- Tech Stack:
+
+  - Framework: `Nest.js`
+  - ORM: `TypeORM`
+  - CORS: Configured to allow cross-origin resource sharing.
+
+- APIs Implementation:
+
+  - `/user/find-all`: Retrieves and returns all users.
+  - `/home/find-by-user`: Retrieves and returns all homes related to a specified user.
+  - `/user/find-by-home`: Retrieves and returns all users associated with a specific home.
+  - `/home/update-users`: Updates the list of users associated with a specific home based on the input.
+
+- Components:
+  - `Controllers` : Manage API request handling and responses.
+  - `Services` : Contain business logic and interact with the database.
+  - `Models` : Define data structures and perform CRUD operations.
+  - `Routes (Decorators)` : Define HTTP endpoints and link to controller functions.
+- Running the Backend:
+
+> Navigate to the backend directory with
+
+```bash
+cd backend
+```
+
+Install dependencies using
+
+```bash
+npm install
+```
+
+Start the server with
+
+```bash
+npm run start:dev
+```
 
 ## Submission Guidelines
 
@@ -331,4 +463,3 @@ docker-compose -f docker-compose.initial.yml down
 ### submit the fork url
 
 - when you've committed everything needed to your github fork, please share the url with us, so we can review your submission
-  
